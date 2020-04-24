@@ -112,6 +112,7 @@ body {background: #eeeeee; background-size: contain;}
 }
 #prepReaseon{
 	margin-left:35px;
+	width: 225px;
 }
 #prepContext{
 	margin-left:55px;

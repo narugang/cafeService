@@ -98,5 +98,13 @@ public interface CafeDao {
 	public abstract void prepboard(PrepboardVO prepboardVO);
 	//신고 게시글 불러오기
 	public abstract List<PrepboardVO> selectPrepBoard(Integer seq);
+	
+	public abstract int deletePrepBoardPost(int postnum);
+	
+	public abstract int countBfile(int postcd);
+	
+	public abstract int deleteBfile(int postcd);
+	
+	public abstract int deletePost(int code);
 
 }

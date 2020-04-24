@@ -72,7 +72,7 @@
 	<!-- 업로드 패스 설정 -->
 	<beans:bean class="java.lang.String" id="uploadPath">
 		<beans:constructor-arg
-			value="D:\images" />
+			value="C:\images" />
 	</beans:bean>
 	
 	<beans:bean class="java.lang.String" id="loginChkPath">
@@ -82,10 +82,10 @@
 	
 	
 	<!-- 일반 파일 업로드 불러오는 경로 -->
-	<resources mapping="/imgUpload/**" location="file:///d:/images/imgUpload/" />
+	<resources mapping="/imgUpload/**" location="file:///c:/images/imgUpload/" />
 										 <!-- resources -->
 	<!-- default 이미지 불러오는 경로 -->
-	<resources mapping="/images/**" location="file:///d:/images/" />
+	<resources mapping="/images/**" location="file:///c:/images/" />
 											<!-- resources/images -->
 	<beans:bean	class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
 		<beans:property name="maxUploadSize" value="10485760" />

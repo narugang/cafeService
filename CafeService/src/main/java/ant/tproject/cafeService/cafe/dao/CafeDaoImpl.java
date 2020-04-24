@@ -224,6 +224,27 @@ public class CafeDaoImpl implements CafeDao{
 		
 		return sqlSessionTemplate.selectList("Cafe.selectPrepBoard", seq);
 	}
+	@Override
+	public int deletePrepBoardPost(int postnum) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public int countBfile(int postcd) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public int deleteBfile(int postcd) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public int deletePost(int code) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
 	
 
 }

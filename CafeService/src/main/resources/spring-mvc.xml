@@ -15,8 +15,8 @@
 		<mvc:jsp prefix="/WEB-INF/views/"/>
 	</mvc:view-resolvers>
 
-	<mvc:resources location="file:///d:/images/imgUpload/" mapping="/imgUpload/**"/>
+	<mvc:resources location="file:///c:/images/imgUpload/" mapping="/imgUpload/**"/>
 
-	<mvc:resources location="file:///d:/images/" mapping="/images/**"/>
+	<mvc:resources location="file:///c:/images/" mapping="/images/**"/>
 	
 </beans>

@@ -14,6 +14,8 @@
    <select id="checkOpenCafe" parameterType="Integer" resultType="Integer">
       SELECT OPEN FROM CAFE WHERE SEQ = #{cafe}
    </select>
+   
+   <!-- 신고기능 관련 코드 -->
    <insert id="prepboard" parameterType="prepboardVO">
 		INSERT INTO PREPORT 
 			(PREPNUM, POSTNUM, PREPREASON, PREPCONTEXT, PREPDATE) VALUES 
@@ -27,4 +29,19 @@
 			ON CATE.CODE = PO.CATEGORY 
 		WHERE CAFE = #{seq}
 	</select>
+	<delete id="deletePrepBoardPost">
+		DELETE FROM PREPORT WHERE POSTNUM = #{postnum}
+	</delete>
+	<!-- 신고 게시글의 첨부파일의 개수를 확인 -->
+	<select id="countBfile">
+		SELECT COUNT(*) FROM BFILE WHERE POSTCD = #{postcd}
+	</select>
+	
+	<delete id="deleteBfile">
+		DELETE FROM BFILE WHERE POSTCD = #{postcd}
+	</delete>
+	
+	<delete id="deletePost">
+		DELETE FROM POST WHERE CODE = #{code}
+	</delete>
 </mapper>

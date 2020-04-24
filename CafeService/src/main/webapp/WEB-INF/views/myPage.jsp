@@ -203,7 +203,7 @@ input#change_Image{
     	<a href="./bandmain"class="navbar-brand" class="navbar-brand">
         	<input type="button" id="mainLogo" name="mainLogo" value="" style ="margin-top: 0px;">
  		</a>
-        <div class = "headerbar1" style=" vertical-align: middle; height: 80px; align: left; margin-right: 1250px;">
+        <div class = "headerbar1" style=" vertical-align: middle; height: 80px; align: left; margin-right: auto;">
 			<input type="text" class="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" 
 				value="${scri.keyword}" class="form-control" width="50px" id="keywordInput" placeholder="카페 및 게시글 검색"
 				 style="width: 200px;  margin-top: 17px; vertical-align: middle; float: left;"/>
