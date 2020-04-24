@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Calendar">
+	<select id="selectCalendarMonth" parameterType="Integer" resultType="calendarMonthDto">
+		SELECT CALCODE AS ID, TITLE, TRANSLATE(TO_CHAR(CALSTART, 'YYYY-MM-DD HH24:MI:SS'), ' ', 'T') AS "START", TRANSLATE(TO_CHAR(END, 'YYYY-MM-DD HH24:MI:SS'), ' ', 'T') AS END,
+        COLOR FROM CALENDAR WHERE CALSTART &lt;= LAST_DAY(SYSDATE)
+		AND END &gt;= TO_DATE(TO_CHAR(SYSDATE, 'YYYYMM')||'01', 'YYYYMMDD') AND CAFE = #{cafe}
+	</select>
+	<select id="selectCalendar" parameterType="hashmap" resultType="calendarMonthDto">
+		SELECT CALCODE AS ID, TITLE, TO_CHAR(CALSTART, 'YYYY-MM-DD') AS "START", TO_CHAR(END, 'YYYY-MM-DD') AS END, COLOR 
+		FROM CALENDAR WHERE CALSTART &lt;= TO_DATE(#{end}, 'YYYY-MM-DD') AND END &gt;= TO_DATE(#{calstart}, 'YYYY-MM-DD') AND CALMEM = TO_NUMBER(#{memcode})
+	</select>
+	<select id="selectCalendarAdmin" parameterType="hashmap" resultType="calendarMonthDto">
+		SELECT CALCODE AS ID, TITLE, TO_CHAR(CALSTART, 'YYYY-MM-DD') AS "START", TO_CHAR(END, 'YYYY-MM-DD') AS END, COLOR 
+		FROM CALENDAR WHERE CALSTART &lt;= TO_DATE(#{end}, 'YYYY-MM-DD') AND END &gt;= TO_DATE(#{calstart}, 'YYYY-MM-DD')
+	</select>
+	<insert id="insertCalendar" parameterType="calendarDto">
+		INSERT INTO CALENDAR VALUES(CALENDAR_SEQ.NEXTVAL, #{calmem}, #{title}, #{calcontxt}, TO_DATE(#{calstart}, 'YYYY-MM-DDHH24:MI'), TO_DATE(#{end}, 'YYYY-MM-DDHH24:MI'),
+		SYSDATE, #{cafe}, #{color})
+	</insert>
+	<delete id="deleteCalendar" parameterType="Integer">
+		DELETE FROM CALENDAR WHERE CALCODE = #{code}
+	</delete>
+	<update id="updateCalendar" parameterType="hashmap">
+		UPDATE CALENDAR SET CALSTART = TO_DATE(#{betweenStart}, 'YYYY-MM-DDHH24:MI'), END = 
+		(END-(CALSTART- TO_DATE(#{betweenStart}, 'YYYY-MM-DDHH24:MI'))) WHERE CALCODE = TO_NUMBER(#{id})
+	</update>
+	<update id="updateCalendarSize" parameterType="hashmap">
+		UPDATE CALENDAR SET END = TO_DATE(#{betweenEnd}, 'YYYY-MM-DDHH24:MI'), CALSTART = 
+		(CALSTART-(END- TO_DATE(#{betweenEnd}, 'YYYY-MM-DDHH24:MI'))) WHERE CALCODE = TO_NUMBER(#{id})
+	</update>
+	<update id="updateCalendarList" parameterType="calendarMonthDto">
+		UPDATE CALENDAR SET TITLE = #{title}, CALSTART = #{start}, END = #{end}, COLOR = #{color} WHERE CALCODE = #{id}
+	</update>
+	<!-- LAGCALCODE는 increase 이후의 행을 불러온다  increase만큼 끊어서 개시글 출력-->
+	<select id="loadCalendarPost" parameterType="hashmap" resultType="calendarNicDto">
+		SELECT THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, TO_CHAR(CALSTART, 'YYYY"년"MM"월"DD"일" HH24:MI') AS CALSTART, TO_CHAR(END, 'YYYY"년"MM"월"DD"일" HH24:MI') AS END, TO_CHAR(WRITEDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDATE, COLOR FROM(SELECT NVL(LAG(CALCODE, #{increase}) OVER(ORDER BY CALCODE DESC), 0) AS LAGCALCODE
+        , THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, CALSTART, END, WRITEDATE, COLOR FROM CALENDAR JOIN MEMBER ON CALMEM = NUM WHERE CAFE = #{cafe}) WHERE (CALCODE &lt; #{postLoadCnt} AND LAGCALCODE &gt;= #{postLoadCnt})
+	</select>
+	<!-- LAGCALCODE가 null일 경우 즉 최신글 increase이후가 없다 -->
+	<select id="loadCalendarPostZero" parameterType="hashmap" resultType="calendarNicDto">
+		SELECT THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, TO_CHAR(CALSTART, 'YYYY"년"MM"월"DD"일" HH24:MI') AS CALSTART, TO_CHAR(END, 'YYYY"년"MM"월"DD"일" HH24:MI') AS END, TO_CHAR(WRITEDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDATE, COLOR FROM(SELECT NVL(LAG(CALCODE, #{increase}) OVER(ORDER BY CALCODE DESC), 0) AS LAGCALCODE
+        , THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, CALSTART, END, WRITEDATE, COLOR FROM CALENDAR JOIN MEMBER ON CALMEM = NUM WHERE CAFE = #{cafe}) WHERE LAGCALCODE = 0		
+	</select>
+	<!-- LAGCALCODE는 increase 이후의 행을 불러온다  increase만큼 끊어서 개시글 출력-->
+	<select id="searchCalendarPost" parameterType="hashmap" resultType="calendarNicDto">
+		SELECT THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, TO_CHAR(CALSTART, 'YYYY"년"MM"월"DD"일" HH24:MI') AS CALSTART, TO_CHAR(END, 'YYYY"년"MM"월"DD"일" HH24:MI') AS END, TO_CHAR(WRITEDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDATE, COLOR FROM(SELECT NVL(LAG(CALCODE, TO_NUMBER(#{increase})) OVER(ORDER BY CALCODE DESC), 0) AS LAGCALCODE
+        , THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, CALSTART, END, WRITEDATE, COLOR FROM CALENDAR JOIN MEMBER ON CALMEM = NUM WHERE CAFE = TO_NUMBER(#{cafe}) AND(NIC LIKE '%'||#{searchtext}||'%' OR TITLE LIKE '%'||#{searchtext}||'%' OR CALCONTXT LIKE '%'||#{searchtext}||'%')) WHERE (CALCODE &lt; TO_NUMBER(#{postLoadCnt}) AND LAGCALCODE &gt;= TO_NUMBER(#{postLoadCnt}))
+	</select>
+	<!-- LAGCALCODE가 null일 경우 즉 최신글 increase이후가 없다 -->
+	<select id="searchCalendarPostZero" parameterType="hashmap" resultType="calendarNicDto">
+		SELECT THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, TO_CHAR(CALSTART, 'YYYY"년"MM"월"DD"일" HH24:MI') AS CALSTART, TO_CHAR(END, 'YYYY"년"MM"월"DD"일" HH24:MI') AS END, TO_CHAR(WRITEDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDATE, COLOR FROM(SELECT NVL(LAG(CALCODE, TO_NUMBER(#{increase})) OVER(ORDER BY CALCODE DESC), 0) AS LAGCALCODE
+        , THUMBIMG, NIC, CALCODE, CALMEM, TITLE, CALCONTXT, CALSTART, END, WRITEDATE, COLOR FROM CALENDAR JOIN MEMBER ON CALMEM = NUM WHERE CAFE = TO_NUMBER(#{cafe}) AND(NIC LIKE '%'||#{searchtext}||'%' OR TITLE LIKE '%'||#{searchtext}||'%' OR CALCONTXT LIKE '%'||#{searchtext}||'%')) WHERE LAGCALCODE = 0		
+	</select>
+</mapper>

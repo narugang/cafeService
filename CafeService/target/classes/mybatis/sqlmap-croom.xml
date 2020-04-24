@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Croom">
+	<select id="selectCroomCodeMax" resultType = "Integer">
+	SELECT NVL(MAX(CODE), 0) FROM CROOM
+	</select>
+	<insert id="insertCroom" parameterType="croomDto">
+	INSERT INTO CROOM VALUES (#{code}, #{sub}, 0, 'img', #{cafe}, 0, SYSDATE)
+	</insert>
+	<select id="selectCroomList" parameterType="hashmap" resultType="croomDto">
+	SELECT * FROM CROOM WHERE CODE IN (SELECT ROOMCODE FROM CMEMBER WHERE MEMCODE = #{memcode}) AND CAFE = #{cafe} ORDER BY NEWDATE DESC
+	</select>
+	<delete id="deleteCroom" parameterType="Integer">
+	DELETE CROOM WHERE CODE = #{roomcode}
+	</delete>
+	<select id="selectCroom" parameterType="Integer" resultType="croomDto">
+	SELECT * FROM CROOM WHERE CODE in (SELECT ROOMCODE FROM CMEMBER WHERE MEMCODE = #{memcode}) AND ROWNUM=1 ORDER BY CODE DESC
+	</select>
+</mapper>

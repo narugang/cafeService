@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	
+	<!-- 마이바티스 작동 규칙 정의 -->
+	<settings>
+		<setting name="cacheEnabled" value="false"/>
+		<setting name="useGeneratedKeys" value="false"/>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<typeAliases>
+		<!-- 태헌[S] -->
+		<typeAlias alias="memberVO" type="ant.tproject.cafeService.member.MemberVO"/>
+		<typeAlias alias="cateMakeVO" type="ant.tproject.cafeService.admin.CateMakeVO"/>
+		<typeAlias alias="prepboardVO" type="ant.tproject.cafeService.cafe.PrepboardVO"/>
+		<!-- 태헌[E] -->
+		
+		<!-- 인우[S] -->
+		<typeAlias alias="criteria" type="ant.tproject.cafeService.board.domain.Criteria"/>
+		<typeAlias alias="boardVO" type="ant.tproject.cafeService.board.domain.BoardVO" />
+		<!-- 인우[E] -->
+		
+		<!-- 영표[S] -->
+		<typeAlias alias="clogDto" type="ant.tproject.cafeService.chat.dto.ClogDto"/>
+		<typeAlias alias="cmemberDto" type="ant.tproject.cafeService.chat.dto.CmemberDto"/>
+		<typeAlias alias="croomDto" type="ant.tproject.cafeService.chat.dto.CroomDto"/>
+		<typeAlias alias="memberInviteDto" type="ant.tproject.cafeService.chat.dto.MemberInviteDto"/>
+		<typeAlias alias="clogRecDto" type="ant.tproject.cafeService.chat.dto.ClogRecDto"/>
+		<typeAlias alias="clogListDto" type="ant.tproject.cafeService.chat.dto.ClogListDto"/>
+		<typeAlias alias="boardMemberIdVO" type="ant.tproject.cafeService.board.domain.BoardMemberIdVO" />
+		<typeAlias alias="boardMemberNicVO" type="ant.tproject.cafeService.board.domain.BoardMemberNicVO" />
+			<!-- 달력(calendar) S -->
+		<typeAlias alias="calendarDto" type="ant.tproject.cafeService.calendar.CalendarDto"/>
+		<typeAlias alias="calendarNicDto" type="ant.tproject.cafeService.calendar.CalendarNicDto"/>
+		<typeAlias alias="calendarMonthDto" type="ant.tproject.cafeService.calendar.CalendarMonthDto"/>
+			<!-- 달력(calendar) E -->
+		
+			<!-- 밴드 S-->
+		<typeAlias alias="cfmemberDto" type="ant.tproject.cafeService.cafe.CfmemberDto"/>
+		<typeAlias alias="cfmemberNicDto" type="ant.tproject.cafeService.cafe.CfmemberNicDto"/>
+		<typeAlias alias="cafeDto" type="ant.tproject.cafeService.cafe.CafeDto"/>
+		<typeAlias alias="bfileDto" type="ant.tproject.cafeService.cafe.BfileDto"/>
+		<typeAlias alias="categoryDto" type="ant.tproject.cafeService.cafe.CategoryDto"/>
+			<!-- 밴드 S-->
+			
+		<!-- 영표[E] -->
+		
+		<!-- 도현[S] -->
+		<typeAlias type="ant.tproject.cafeService.message.MessageVO" alias="MessageVO"/>
+		<!-- 도현[S] -->
+	</typeAliases>
+</configuration>

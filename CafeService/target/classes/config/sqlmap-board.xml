@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boardDAO">
+        <select id="list" resultType="boardVO">
+               SELECT CODE, POSTSUB, CONTENT, WRITEDT, CATEGORY, WRITERNUM, VIEWCNT FROM POST ORDER BY CODE DESC
+        </select>
+        
+        <select id="select" parameterType="int" resultType="boardVO">
+                SELECT * FROM POST WHERE CODE = #{code}
+        </select>
+        
+       <!-- 개시글 집어넣는 쿼리문  -->
+        <insert id="insertBoard" parameterType="boardVO">
+        	INSERT INTO POST VALUES (POST_SEQ.nextval, #{postsub}, SYSDATE, #{content}, #{category}, #{writernum}, 0)
+        </insert>
+        <!-- 개시글에서 첨부한 파일을 집어넣기 위해서 시퀀스번호 호출 -->
+        <select id="selectBoardCurSeq" resultType="Integer">
+           SELECT MAX(CODE) FROM POST
+        </select>
+       <!--게시글 불러오기 increase만큼-->
+      	<select id="loadPost" parameterType="Integer" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, p.CODE, POSTSUB, THUMBIMG, WRITEDT , CONTENT, c.NAME, NIC, VIEWCNT FROM POST p JOIN MEMBER ON NUM = WRITERNUM JOIN CATEGORY c ON c.CODE = p.CATEGORY  WHERE CATEGORY = #{category}) WHERE (CODE &lt; #{postLoadCnt} AND LAGCODE &gt;= #{postLoadCnt})
+        </select>
+        <!-- 처음 게시물이 하나도 없을 때 개시물을 increase만큼 불러옵니다. -->
+        <select id="loadPostZero" parameterType="hashmap" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, p.CODE, POSTSUB, THUMBIMG, WRITEDT , CONTENT, c.NAME, NIC, VIEWCNT FROM POST p JOIN MEMBER ON NUM = WRITERNUM JOIN CATEGORY c ON c.CODE = p.CATEGORY WHERE CATEGORY = #{category}) WHERE LAGCODE = 0
+        </select>
+     	
+     	<!--카페전체 게시글 불러오기 increase만큼-->
+        <select id="loadPostAll" parameterType="Integer" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, p.CODE, POSTSUB, WRITEDT, THUMBIMG , CONTENT, c.NAME, NIC, VIEWCNT FROM POST p JOIN MEMBER ON NUM = WRITERNUM JOIN CATEGORY c ON c.CODE = p.CATEGORY WHERE c.CAFE = #{cafe})WHERE (CODE &lt; #{postLoadCnt} AND LAGCODE &gt;= #{postLoadCnt})
+        </select>
+        <!-- 처음 게시물이 하나도 없을 때 카페전체 개시물을 increase만큼 불러옵니다. -->
+        <select id="loadPostAllZero" parameterType="hashmap" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, p.CODE, POSTSUB, WRITEDT, THUMBIMG, CONTENT, c.NAME, NIC, VIEWCNT FROM POST p JOIN MEMBER ON NUM = WRITERNUM JOIN CATEGORY c ON c.CODE = p.CATEGORY WHERE c.CAFE = #{cafe}) WHERE LAGCODE = 0
+        </select>
+        
+		<!-- 카페멤버 코드를 기준으로  게시글 검색 -->
+        <select id="searchPostCfmem" parameterType="hashmap" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, CODE, POSTSUB, WRITEDT, THUMBIMG , CONTENT, CATEGORY, NIC, VIEWCNT FROM POST JOIN CFMEMBER ON MEMNUM = WRITERNUM JOIN MEMBER ON NUM = MEMNUM WHERE CFMEM = #{cfmem} AND CATEGORY IN (SELECT CODE FROM CATEGORY WHERE CAFE = #{category}))WHERE (CODE &lt; #{postLoadCnt} AND LAGCODE &gt;= #{postLoadCnt})
+        </select>
+        <!-- 불러온 글이 없을 때 카페멤버 코드를 기준으로  게시글 검색 -->
+        <select id="searchPostCfmemZero" parameterType="hashmap" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, CODE, POSTSUB, WRITEDT, THUMBIMG , CONTENT, CATEGORY, NIC, VIEWCNT FROM POST JOIN CFMEMBER ON MEMNUM = WRITERNUM JOIN MEMBER ON NUM = MEMNUM WHERE CFMEM = #{cfmem} AND CATEGORY IN (SELECT CODE FROM CATEGORY WHERE CAFE = #{category}))WHERE LAGCODE = 0
+        </select>
+        <!-- 게시글의 제목과 내용에서 검색 -->
+        <select id="searchPostSubContent" parameterType="hashmap" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, p.CODE, POSTSUB, WRITEDT, THUMBIMG , CONTENT, c.NAME, NIC, VIEWCNT FROM POST p JOIN MEMBER ON NUM = WRITERNUM JOIN CATEGORY c ON c.CODE = p.CATEGORY WHERE c.CAFE = TO_NUMBER(#{cafe}) AND (POSTSUB LIKE '%'||#{postsub}||'%' OR CONTENT LIKE '%'||#{content}||'%'))WHERE (CODE &lt; TO_NUMBER(#{postLoadCnt}) AND LAGCODE &gt;= TO_NUMBER(#{postLoadCnt}))
+        </select>
+        <!-- 불러온 게시글이 없을 때 게시글의 제목과 내용에서 검색 -->
+        <select id="searchPostSubContentZero" parameterType="hashmap" resultType="boardMemberNicVO">
+        	SELECT CODE, POSTSUB, THUMBIMG, TO_CHAR(WRITEDT, 'YYYY"년"MM"월"DD"일" HH24:MI') AS WRITEDT, CONTENT, NAME, NIC, VIEWCNT FROM(SELECT NVL(LAG(p.CODE, #{increase}) OVER(ORDER BY p.CODE DESC), 0) AS LAGCODE
+        	, p.CODE, POSTSUB, WRITEDT, THUMBIMG, CONTENT, c.NAME, NIC, VIEWCNT FROM POST p JOIN MEMBER ON NUM = WRITERNUM JOIN CATEGORY c ON c.CODE = p.CATEGORY WHERE c.CAFE = TO_NUMBER(#{cafe}) AND (POSTSUB LIKE '%'||#{postsub}||'%' OR CONTENT LIKE '%'||#{content}||'%'))WHERE LAGCODE = 0
+        </select>
+        <!-- 게시글 코드로 게시글 정보 불러오기 -->
+        <select id="selectPostCode" parameterType="int" resultType="boardVO">
+        	SELECT POSTSUB, CONTENT, CATEGORY, WRITERNUM FROM POST WHERE CODE = #{code}  
+        </select>
+		<update id="updatePost" parameterType="boardVO">
+			UPDATE POST SET POSTSUB = #{postsub}, CONTENT=#{content}, CATEGORY = #{category} WHERE CODE = #{code}
+		</update>
+		<delete id="deletePost" parameterType="Integer">
+			DELETE FROM POST WHERE CODE = #{code}
+		</delete>
+        <!-- 유저가 가입한 카페 목록을 불러오는 쿼리문 -->
+		<select id="myblistpage" parameterType="criteria" resultType="cafeDto">
+               SELECT seq, title, content, TO_CHAR(regdate, 'YYYY-MM-DD') as regdate, intere, open, image, postcode, address, detailaddress, extraaddress, cnt, tocnt
+				FROM ( 
+                    SELECT seq, title, content, C.regdate, intere, open, image, C.postcode, address, detailaddress, extraaddress, cnt, tocnt,
+                        ROW_NUMBER() OVER(ORDER BY C.seq DESC) AS RNUM 
+                FROM CAFE C, CFMEMBER, MEMBER
+				WHERE SEQ = CAFECD AND MEMNUM = NUM AND NUM = #{num}
+                ) MP
+				WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+            ORDER BY seq DESC 
+
+        </select>
+        
+        <select id="myblistCount" resultType="int">
+
+		   SELECT COUNT(SEQ)
+		   FROM CAFE 
+		   WHERE 1=1
+		<include refid="cafeSearch"></include>	
+		   AND SEQ > 0
+		</select>
+        
+        
+        <!-- 
+        <update id="update" parameterType="boardVO">
+                UPDATE POST SET title = #{title},
+                content = #{content},
+                writer = #{writer}
+                WHERE SEQ = #{SEQ} AND password = #{password}
+        </update> -->
+        <!-- 
+        <update id="updateCount" parameterType="int">
+                UPDATE POST SET cnt = cnt + 1 WHERE SEQ = #{SEQ}
+        </update>
+        
+        <delete id="delete" parameterType="boardVO">
+                DELETE FROM POST WHERE SEQ = #{SEQ}
+                AND password = #{password}
+        </delete>
+        
+        <delete id="deleteAll">
+                DELETE FROM POST
+        </delete> -->
+        <select id="bselect" parameterType="int" resultType="cafeDto">
+                SELECT * FROM
+               	CAFE WHERE open = 0 and SEQ = #{SEQ}
+        </select>
+        
+        <insert id="binsert" parameterType="cafeDto">
+                INSERT INTO CAFE
+                (seq, title, content, regdate, intere, open, image, postcode, address, detailaddress, extraaddress, cnt, tocnt)
+                VALUES
+                (CAFE_SEQ.nextval, 
+			#{title}, #{content}, SYSDATE, #{intere}, #{open},  #{image}, #{postcode}, #{address}, #{detailaddress}, #{extraaddress}, 0, 0)                
+				<!-- <selectKey keyProperty="seq" resultType="Integer">
+                        SELECT NVL(MAX(seq), 0) FROM CAFE
+                </selectKey> -->
+        </insert>
+        
+       <select id="blistPage" resultType="cafeDto" parameterType="criteria">
+        SELECT  seq, title, content, TO_CHAR(regdate, 'YYYY-MM-DD') as regdate, intere, open, image, postcode, address, detailaddress, extraaddress, cnt, tocnt
+		 FROM ( 
+		        SELECT seq, title, content, regdate, intere, open, image, postcode, address, detailaddress, extraaddress, cnt, tocnt,
+		              ROW_NUMBER() OVER(ORDER BY seq DESC) AS RNUM 
+		              FROM CAFE
+		              WHERE OPEN = 0 and 1=1 
+		         <include refid="cafeSearch"></include>
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY seq DESC
+		</select>
+        
+        <select id="blistCount" resultType="int">
+		SELECT COUNT(SEQ)
+		   FROM CAFE 
+		   WHERE 1=1
+		<include refid="cafeSearch"></include>	
+		   AND SEQ > 0
+		</select>
+        
+        <update id="bupdate" parameterType="cafeDto">
+                UPDATE CAFE SET title = #{title},
+                content = #{content},
+                WHERE SEQ = #{SEQ}
+        </update>
+        
+        
+        <delete id="bdelete" parameterType="boardVO">
+                DELETE FROM CAFE WHERE SEQ = #{SEQ}
+        </delete>
+        
+        <delete id="bdeleteAll">
+                DELETE FROM CAFE
+        </delete>
+        
+        
+     <!-- PAGE 리스트 가져오는 쿼리 -->
+	<select id="listPage" resultType="boardVO" parameterType="criteria">
+		SELECT 
+			CODE,  
+			POSTSUB, 
+              CONTENT,
+              WRITERNUM,
+              CATEGORY,
+              WRITEDT,
+                CAFE,
+                NIC,
+                VIEWCNT,
+                POSTCODE
+    from (
+    SELECT  
+    		CAT.CODE,
+    		  POSTSUB, 
+              CONTENT,
+              WRITERNUM,
+              CATEGORY, 
+              WRITEDT,
+                CAFE,
+                  NIC,
+                   VIEWCNT,
+                   POSTCODE,
+                rownum as rn
+       FROM ( 
+              SELECT 
+              
+              CATEGORY.CODE, 
+                     POSTSUB, 
+                     CONTENT, 
+                     WRITERNUM,
+                     CATEGORY,
+                     WRITEDT,
+                      CAFE,
+                        NIC,
+                         VIEWCNT,
+                         POSTRET.CODE POSTCODE,
+                     ROW_NUMBER() OVER(ORDER BY WRITEDT DESC) AS RNUM
+               FROM POST POSTRET, CATEGORY, MEMBER where postret.category=CATEGORY.code and writernum = num
+               ORDER BY WRITEDT DESC 
+               ) CAT 
+      WHERE   1=1 
+               <include refid="postSearch"></include>) mp
+               where 
+               rn BETWEEN #{rowStart} AND #{rowEnd}
+      ORDER BY WRITEDT DESC 
+	</select>
+        
+	<select id="listCount" resultType="int">
+	SELECT COUNT(CODE)
+		   FROM POST JOIN MEMBER ON NUM = WRITERNUM
+		   WHERE 1=1
+		<include refid="postSearch"></include>	
+		   AND CODE > 0
+	</select>
+	
+	
+	<!-- 방문수 업데이트 쿼리문 -->
+	 <update id="updateCnt" parameterType="int">
+                UPDATE CAFE
+                SET CNT = CNT + 1
+                WHERE SEQ = #{seq}
+     </update>
+     
+     <!-- 조회수 업데이트 쿼리문 -->
+      <update id="updateViewCnt" parameterType="int">
+         UPDATE
+        (       
+        SELECT
+            VIEWCNT
+         FROM
+            POST P , CATEGORY CT
+         WHERE
+            P.CATEGORY = CT.CODE and ct.cafe = #{seq} 
+        )
+		set VIEWCNT = VIEWCNT+1
+     </update>
+   
+   	<sql id="postSearch">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND POSTSUB LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND CONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND ID LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (POSTSUB LIKE '%' || #{keyword} || '%') or (CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+	<sql id="cafeSearch">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND TITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND CONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (TITLE LIKE '%' || #{keyword} || '%') or (CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+</mapper>

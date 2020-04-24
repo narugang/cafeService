@@ -1,0 +1,21 @@
+@charset "UTF-8";
+<style>
+body {
+    padding-left: 150px;
+    padding-top: 25px;
+}
+div#main_form{
+    position:absolute;
+    left:22%;
+}
+
+div#send_btn{
+	position:absolute;
+    left:40%;
+    top:81%;
+}
+div#error_Message {
+	position:absolute;
+    top:102%;
+}
+</style>

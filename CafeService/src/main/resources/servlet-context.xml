@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+		http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- 영표[S] -->
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<tx:annotation-driven
+		transaction-manager="transactionManager" />
+	<beans:bean id= "chatDao" class="ant.tproject.cafeService.chat.dao.ChatDaoImpl">
+		<beans:constructor-arg ref="sqlSessionTemplate"/>
+	</beans:bean>
+	<beans:bean id="chatServiceImpl" class="ant.tproject.cafeService.chat.service.ChatServiceImpl">
+		<beans:property name="chatDao" ref="chatDao"/>
+	</beans:bean>
+	<beans:bean id="chatController" class="ant.tproject.cafeService.chat.controller.ChatController">
+		<beans:property name="chatService" ref="chatServiceImpl"/>
+	</beans:bean>
+	<beans:bean id= "calendarDao" class="ant.tproject.cafeService.calendar.dao.CaledarDaoImpl">
+		<beans:constructor-arg ref="sqlSessionTemplate"/>
+	</beans:bean>
+	<beans:bean id="calendarServiceImpl" class="ant.tproject.cafeService.calendar.service.CalendarServiceImpl">
+		<beans:property name="calendarDao" ref="calendarDao"/>
+	</beans:bean>
+	<beans:bean id="calendarController" class="ant.tproject.cafeService.calendar.controller.CalendarController">
+		<beans:property name="calendarService" ref="calendarServiceImpl"/>
+	</beans:bean>
+	<beans:bean id= "cafeDao" class="ant.tproject.cafeService.cafe.dao.CafeDaoImpl">
+		<beans:constructor-arg ref="sqlSessionTemplate"/>
+	</beans:bean>
+	<beans:bean id="cafeServiceImpl" class="ant.tproject.cafeService.cafe.service.CafeServiceImpl">
+		<beans:property name="cafeDao" ref="cafeDao"/>
+	</beans:bean>
+	<beans:bean id="cafeController" class="ant.tproject.cafeService.cafe.controller.CafeController">
+		<beans:property name="cafeService" ref="cafeServiceImpl"/>
+	</beans:bean>
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	<!--ws 시작  -->
+	<websocket:handlers>
+    	<websocket:mapping handler="echoHandler" path="/echo"/>
+        <!-- WebSocket Handshake : 웹소켓 핸들러 클래스(echoHandler)가 호출되기전에 HttpSession에 접속하여  -->
+        <!-- '이용자 아이디를 추출하는 기능' 등을 인터셉터가 수행하도록 설정 -->
+        	<websocket:handshake-interceptors>
+            	<beans:bean class="ant.tproject.cafeService.chat.controller.HandShakeInterceptor"/>
+            </websocket:handshake-interceptors>
+       		<!-- <websocket:sockjs /> -->
+    </websocket:handlers>
+    <beans:bean id="echoHandler" class="ant.tproject.cafeService.chat.controller.EchoHandler" >
+    	<beans:property name="chatService" ref="chatServiceImpl"/>
+    </beans:bean>
+    <!--ws 끝  -->
+  	<!-- 영표[E] -->
+
+	<!-- 태헌[S] -->
+	<!-- 업로드 패스 설정 -->
+	<beans:bean class="java.lang.String" id="uploadPath">
+		<beans:constructor-arg
+			value="D:\images" />
+	</beans:bean>
+	
+	<beans:bean class="java.lang.String" id="loginChkPath">
+		<beans:constructor-arg
+			value="redirect:/loginform" />
+	</beans:bean>
+	
+	
+	<!-- 일반 파일 업로드 불러오는 경로 -->
+	<resources mapping="/imgUpload/**" location="file:///d:/images/imgUpload/" />
+										 <!-- resources -->
+	<!-- default 이미지 불러오는 경로 -->
+	<resources mapping="/images/**" location="file:///d:/images/" />
+											<!-- resources/images -->
+	<beans:bean	class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+		<beans:property name="maxUploadSize" value="10485760" />
+	</beans:bean>
+	<!-- 태헌[E] -->
+	
+	<context:component-scan base-package="ant.tproject.CafeService" />
+</beans:beans>

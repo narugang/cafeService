@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Bfile">
+	<insert id="insertBfile" parameterType="bfileDto">
+		INSERT INTO BFILE VALUES(BFILE_SEQ.NEXTVAL, #{originalname}, #{storedname}, #{filesize}, SYSDATE, #{postcd})
+	</insert>
+	<!-- 게시글 코드로 파일정보 불러오기 -->
+	<select id="loadPostFile" parameterType="Integer" resultType="bfileDto">
+		SELECT IDX, ORIGINALNAME, FILESIZE FROM BFILE WHERE POSTCD = #{postcd}
+	</select>
+	<!-- 첨부파일 코드로 파일정보 불러오기 -->
+	<select id="selectBFileForIdx" parameterType="Integer" resultType="bfileDto">
+		SELECT STOREDNAME, ORIGINALNAME, TO_CHAR(CREADTM, '\YYYY\MM\DD\') AS CREADTM FROM BFILE WHERE IDX = #{idx}
+	</select>
+</mapper>

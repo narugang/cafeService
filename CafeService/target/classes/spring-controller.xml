@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation=
+	"http://www.springframework.org/schema/mvc 
+	http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- 태헌[S] -->
+	<!-- 중요 내용 -->
+	<bean id="memberController" class="ant.tproject.cafeService.member.controller.MemberController">
+		<property name="memberService" ref="memberServiceImpl"/>
+		<property name="cateMakeService" ref="cateMakeServiceImpl"/>
+		<property name="mailService" ref="mailService"/>
+		</bean>
+	
+	<!-- 로그인 컨트롤러 -->
+	<bean class="ant.tproject.cafeService.member.controller.LoginController">
+		<property name="authService" ref="authService"/>
+	</bean>
+	<bean class="ant.tproject.cafeService.member.controller.MailController">
+		<property name="mailService" ref="mailService"/> <!-- name 프로퍼티 객체이름, 네임은  -->
+	</bean>
+	<!-- 로그아웃 컨트롤러 -->
+	<bean class="ant.tproject.cafeService.member.controller.LogoutController"/>
+	
+	<!-- 카테고리 컨트롤러 -->
+	<bean id="cateMakeController" class="ant.tproject.cafeService.admin.controller.CateController">
+		<property name="cateMakeService" ref="cateMakeServiceImpl"/>
+	</bean>
+	<!-- 태헌[E] -->
+	
+	<!-- 인우[S] -->  <!-- web.xml등록 필요 -->
+	<bean id="boardController" class="ant.tproject.cafeService.board.controller.BoardController">
+		<property name="boardService" ref="boardService" />
+	</bean>
+	<bean id="boardControllerbandmain" class="ant.tproject.cafeService.board.controller.BoardControllerbandmain">
+		<property name="boardService" ref="boardService" />
+		<property name="cateMakeService" ref="cateMakeServiceImpl" />
+	</bean>
+	<!-- 인우[E] -->
+
+	
+	<!-- 도현.태헌[S] -->
+	<bean class="ant.tproject.cafeService.message.controller.MessageController">
+		<property name="messageService" ref="messageServiceImpl"/>
+		
+		<!-- memberServiceImpl을 이용하기 위해 property추가 -->
+		<property name="memberService" ref="memberServiceImpl"/>
+		<!-- <property name="boardService" ref="boardService"/> -->
+	</bean>
+	<!-- 도현.태헌[E] -->
+	
+	<!-- <bean class="ant.tproject.cafeService.message.controller.MessageListController">
+		<property name="messageDao" ref="MessageDAO"/>
+	</bean>
+	
+	<bean class="ant.tproject.cafeService.message.controller.MessageComplateController"/>
+	
+	<bean class="ant.tproject.cafeService.message.controller.MessageViewController">
+		<property name="messageService" ref="messageServiceImpl"></property>
+	</bean> -->
+	<!-- 도현[E] -->
+	
+</beans>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="message">
+	<!--도현[S] -->
+	<!-- <insert id="create" parameterType="MessageVO"> SEND : 보낸시간 , OPEN : 받은 시간
+		INSERT INTO message (NUM, TARGET, SENDER, TITLE, CONTENT, SEND, OPEN) VALUES (MSG_SEQ.nextval, #{target}, #{sender}, #{title}, #{content}, SYSDATE, SYSDATE)
+	</insert>
+	
+	
+	<select id="nickView" parameterType="HashMap" resultType="MessageVO">
+		SELECT * FROM MESSAGE WHERE TARGET = #{target} ORDER BY SEND DESC
+	</select>
+	
+	<select id="select" parameterType="int" resultType="MessageVO">
+		SELECT * FROM MESSAGE WHERE num = #{num}
+	 </select>-->
+	<!--도현[E] -->
+	
+	<!-- 태헌[S] -->
+	<!-- insert 메시지 -->
+	<insert id="insertMessage" parameterType="MessageVO">
+		INSERT INTO MESSAGE (NUM, TITLE, CONTENT, SEND, OPEN, SENDER, TARGET) values (MSG_SEQ.nextval, #{title}, #{content}, SYSDATE, SYSDATE, #{sender}, #{target})
+	</insert>
+		
+	<!-- 메시지 삭제
+	메시지의 넘버를 기준으로 삭제 -->
+	<delete id="deleteMessage" parameterType="Integer">
+		DELETE FROM MESSAGE WHERE NUM = #{num}
+	</delete>
+	 
+	<!-- 내가 보낸 메시지를 확인 -->
+	<select id="viewSendMessage" parameterType="int" resultType="MessageVO">
+		SELECT * FROM MESSAGE WHERE SENDER = #{sender} 	
+	</select>
+
+	<!-- 내가 받은 메시지를 확인 -->
+	<select id="viewReceiveMessage" parameterType="int" resultType="MessageVO">
+		SELECT * FROM MESSAGE WHERE target = #{target} 	
+	</select>
+	
+	<!-- 받은 사람이 메시지를 열어볼 때
+ 	TARGET 과 메시지의 넘버를 비교하여 그것만 열어보도록 -->
+	<select id="openMessage" parameterType="Integer">
+		SELECT * FROM MESSAGE WHERE NUM = #{num}
+	</select>
+	
+	<!-- 메시지를 열어볼 때 받은 시간이 업데이트 될 수 있도록 쿼리를 작성
+		받은 사람의 넘버값과 메시지의 넘버값을 기준으로 선택한 메시지만 업데이트 되도록 -->
+	<update id="updateOpenTime" parameterType="Integer">
+		UPDATE MESSAGE SET OPEN = SYSDATE WHERE NUM = #{num}
+	</update>
+	
+	<select id="pullContext" parameterType="int" resultType="String">
+		SELECT CONTENT FROM MESSAGE WHERE NUM = #{num}
+	</select>
+	
+	<!-- messagePaging[S] -->
+	<!-- 총 게시글 갯수 출력(보낸 메시지) -->
+	<select id="countMessageSender" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM MESSAGE WHERE SENDER = #{sender}
+	</select>
+	
+	<!-- 총 게시글 갯수 출력(받은 메시지) -->
+	<select id="countMessageTarget" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM MESSAGE WHERE TARGET = #{target}
+	</select>
+	
+	<!-- 페이징 처리 후 메시지 조회(보낸 메시지) -->
+	<select id="selectMessageSender" parameterType="int" resultType="MessageVO">
+		SELECT * 
+			FROM (
+				SELECT ROWNUM RN, A.* 
+					FROM (
+							SELECT * 
+							FROM MESSAGE
+							WHERE SENDER = #{sender}
+							ORDER BY NUM DESC 
+							) A
+					)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 페이징 처리 후 메시지 조회(받은 메시지) -->
+	<select id="selectMessageTarget" parameterType="int" resultType="MessageVO">
+		SELECT * 
+			FROM (
+				SELECT ROWNUM RN, A.* 
+					FROM (
+							SELECT * 
+							FROM MESSAGE
+							WHERE TARGET = #{target}
+							ORDER BY NUM DESC 
+							) A
+					)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	<!-- messagePaging[E] -->
+	
+	<!-- <insert id="insertFileInfo" parameterType="java.util.Map">
+ 	CREATE FUNCTION MSG_SEQ RETURN NUMBER IS BEGIN RETURN MSG_SEQ.NEXTVAL;
+	END;
+ 	<foreach item="item" collection="list" open="INSERT ALL"  close="SELECT * FROM DUAL" separator=" " >
+ 		CREATE FUNCTION MSG_SEQ RETURN NUMBER IS BEGIN RETURN MSG_SEQ.NEXTVAL;
+		END;
+		INTO MESSAGE(NUM, TITLE, CONTENT, SEND, OPEN, SENDER, TARGET)
+		VALUES
+		(#{item.mtext_id},#{item.org_name},#{item.new_name},#{item.path})
+	</foreach>
+	</insert> -->
+	
+	<!-- 태헌[E] -->
+</mapper>

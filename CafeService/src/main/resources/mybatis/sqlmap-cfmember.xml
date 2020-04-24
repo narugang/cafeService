@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Cfmember">
+	<insert id="insertCfmember" parameterType="cfmemberDto">
+		INSERT INTO CFMEMBER VALUES(CFMEMBER_SEQ.NEXTVAL, #{memnum}, #{cafecd}, SYSDATE, #{chck},'C2') 
+	</insert>
+	<select id="countCfmember" parameterType="hashmap" resultType="Integer">
+		SELECT COUNT(CAFECD) FROM CFMEMBER WHERE CAFECD = #{cafecd} AND MEMNUM = #{memcode}
+	</select>
+	<!-- 멤버정보를 increase만큼 불러온다  시퀀스 기준으로 정렬-->
+	<select id="loadCfmemberASC" parameterType="hashmap" resultType="cfmemberNicDto">
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, #{increase}) OVER(ORDER BY CFMEM ASC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = #{cafe}) WHERE CFMEM &gt; #{postLoadCnt} AND LAGCFMEM &lt;= #{postLoadCnt}
+	</select>
+	<!-- 불러온 멤버정보가 하나도 없을 때 increase만큼 불러온다. 시퀀스 기준으로 정렬-->
+	<select id="loadCfmemberZeroASC" parameterType="hashmap" resultType="cfmemberNicDto">   
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, #{increase}) OVER(ORDER BY CFMEM ASC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = #{cafe}) WHERE LAGCFMEM = 0
+	</select>
+	<select id="loadCfmemberDESC" parameterType="hashmap" resultType="cfmemberNicDto">
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, #{increase}) OVER(ORDER BY CFMEM DESC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = #{cafe}) WHERE CFMEM &lt; #{postLoadCnt} AND LAGCFMEM &gt;= #{postLoadCnt}
+	</select>
+	<!-- 불러온 멤버정보가 하나도 없을 때 increase만큼 불러온다. 시퀀스 기준으로 정렬-->
+	<select id="loadCfmemberZeroDESC" parameterType="hashmap" resultType="cfmemberNicDto">   
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, #{increase}) OVER(ORDER BY CFMEM DESC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = #{cafe}) WHERE LAGCFMEM = 0
+	</select>
+	<!-- 닉네임에 searchtext가 포함된 멤버정보를 increase만큼 불러온다  시퀀스 기준으로 정렬-->
+	<select id="searchCfmemberASC" parameterType="hashmap" resultType="cfmemberNicDto">
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, TO_NUMBER(#{increase})) OVER(ORDER BY CFMEM ASC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = TO_NUMBER(#{cafe}) AND NIC LIKE '%'||#{searchtext}||'%') WHERE CFMEM &gt; TO_NUMBER(#{postLoadCnt}) AND LAGCFMEM &lt;= TO_NUMBER(#{postLoadCnt})
+	</select>
+	<!-- 닉네임에 searchtext가 포함된 불러온 멤버정보가 하나도 없을 때 increase만큼 불러온다. 시퀀스 기준으로 정렬-->
+	<select id="searchCfmemberZeroASC" parameterType="hashmap" resultType="cfmemberNicDto">   
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, TO_NUMBER(#{increase})) OVER(ORDER BY CFMEM ASC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = TO_NUMBER(#{cafe}) AND NIC LIKE '%'||#{searchtext}||'%') WHERE LAGCFMEM = 0
+	</select>
+	<!-- 닉네임에 searchtext가 포함된 멤버정보를 increase만큼 불러온다. 시퀀스 기준으로 정렬-->
+	<select id="searchCfmemberDESC" parameterType="hashmap" resultType="cfmemberNicDto">
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, TO_NUMBER(#{increase})) OVER(ORDER BY CFMEM DESC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD =TO_NUMBER(#{cafe}) AND NIC LIKE '%'||#{searchtext}||'%') WHERE CFMEM &lt; TO_NUMBER(#{postLoadCnt}) AND LAGCFMEM &gt;= TO_NUMBER(#{postLoadCnt})
+	</select>
+	<!-- 닉네임에 searchtext가 포함된 불러온 멤버정보가 하나도 없을 때 increase만큼 불러온다. 시퀀스 기준으로 정렬-->
+	<select id="searchCfmemberZeroDESC" parameterType="hashmap" resultType="cfmemberNicDto">   
+		SELECT CFMEM, THUMBIMG, NIC, TO_CHAR(REGDATE, 'YYYY"년"MM"월"DD"일" HH24:MI') AS REGDATE, CHCK, AUTH FROM(SELECT NVL(LAG(CFMEM, TO_NUMBER(#{increase})) OVER(ORDER BY CFMEM DESC), 0) AS LAGCFMEM
+        , c.CFMEM, THUMBIMG, m.NIC, c.CAFECD, c.REGDATE, c.CHCK, c.AUTH FROM CFMEMBER c JOIN MEMBER m ON MEMNUM = m.NUM WHERE CAFECD = TO_NUMBER(#{cafe}) AND NIC LIKE '%'||#{searchtext}||'%') WHERE LAGCFMEM = 0
+	</select>
+	<select id="selectCfmemberAuth" parameterType="hashmap" resultType="String">
+		SELECT AUTH FROM CFMEMBER WHERE MEMNUM = #{num} AND CAFECD = #{cafe}
+	</select>
+</mapper>

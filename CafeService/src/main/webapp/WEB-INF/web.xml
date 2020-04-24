@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+		http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" 
+		version="3.1">
+  <!-- 요청을 처리하는 디스패처 서블릿 등록 -->
+	<servlet>
+		<servlet-name>dispatcher</servlet-name> <!-- 프론트 컨트롤러 모든 요청을 얘가 받고 구분할 수 있게 한다. -->
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+			<!-- 설정에 사용되는 파일 -->
+				classpath:context-email.xml
+				classpath:spring-mvc.xml
+				classpath:spring-member.xml
+				classpath:spring-controller.xml
+				classpath:servlet-context.xml
+			</param-value>
+		</init-param>
+		<!-- 서버 실행 시 로드하도록 -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- session 유지시간 설정 -->
+	<session-config>
+		<session-timeout>50</session-timeout>
+	</session-config>
+	
+	
+	<!-- 매핑 설정 / 최상위 경로 요청을 dispatcher서블릿으로 처리하도록 매핑 -->
+	<servlet-mapping>
+		<servlet-name>dispatcher</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+	<!-- 인코딩 설정 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+
+	<!-- 인코딩 필터가 적용될 url패턴 -->
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name> <!-- setCharactorEncoding 이딴 거 필요없이 얘가 다 한다. -->
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>

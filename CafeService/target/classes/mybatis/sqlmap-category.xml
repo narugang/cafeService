@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Category">
+	<!-- 해당카페에 입력한 이름으로 카테고리 추가 -->
+	<insert id="insertCategory" parameterType="categoryDto">
+		INSERT INTO CATEGORY VALUES(CATEGORY_SEQ.NEXTVAL, #{name}, #{cafe})
+	</insert>
+	<!-- 해당 카페의 최근 카테고리번호 -->
+	<select id="selectCategoryCodeMax" parameterType="Integer" resultType="categoryDto">
+		SELECT MAX(CODE) FROM CATEGORY WHERE CAFE = #{cafe}
+	</select>
+	<!-- 해당카페의 모든 카테고리 조회 -->
+	<select id="selectCategory" parameterType="Integer" resultType="categoryDto">
+		SELECT * FROM CATEGORY WHERE CAFE = #{cafe}
+	</select>
+	<!-- 해당 카테고리의 이름 수정 -->
+	<update id="updateCategory" parameterType="categoryDto">
+		UPDATE CATEGORY SET NAME = #{name} WHERE CODE = #{code}
+	</update>
+	<!-- 해당카테고리 삭제-->
+	<delete id="deleteCategory" parameterType="hashmap">
+		DELETE FROM CATEGORY WHERE CODE IN
+		<foreach collection="code" item="codeValue" index="index" open="(" close=")" separator=",">
+		TO_NUMBER(#{codeValue})
+		</foreach>
+	</delete>
+</mapper>

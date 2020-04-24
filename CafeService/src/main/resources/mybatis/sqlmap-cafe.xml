@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Cafe">
+	<select id="selectCafe" parameterType="Integer" resultType="cafeDto">
+		SELECT SEQ, TITLE, CONTENT, TO_CHAR(REGDATE, 'YYYY-DD-MM'), INTERE, OPEN, IMAGE, POSTCODE, ADDRESS, DETAILADDRESS, EXTRAADDRESS, CNT, TOCNT FROM CAFE WHERE SEQ = #{seq}
+	</select>
+	<!-- 카페명 중복 확인 -->
+   <select id="titleCheck" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM CAFE WHERE TITLE = #{title}
+   </select>
+   <!-- 카페의 오픈여부 확인 -->
+   <select id="checkOpenCafe" parameterType="Integer" resultType="Integer">
+      SELECT OPEN FROM CAFE WHERE SEQ = #{cafe}
+   </select>
+   <insert id="prepboard" parameterType="prepboardVO">
+		INSERT INTO PREPORT 
+			(PREPNUM, POSTNUM, PREPREASON, PREPCONTEXT, PREPDATE) VALUES 
+			(PREP_SEQ.NEXTVAL, #{postnum}, #{prepreason}, #{prepcontext}, SYSDATE)
+	</insert>
+	<select id="selectPrepBoard" parameterType="Integer" resultType="prepboardVO">
+		SELECT PRE.PREPNUM,PRE.POSTNUM,PRE.PREPREASON,PRE.PREPCONTEXT,PRE.PREPDATE FROM PREPORT PRE
+			JOIN POST PO
+			ON PRE.POSTNUM = PO.CODE
+			JOIN CATEGORY CATE
+			ON CATE.CODE = PO.CATEGORY 
+		WHERE CAFE = #{seq}
+	</select>
+</mapper>

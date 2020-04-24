@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Cmember">
+	<insert id="insertCmember" parameterType="Integer">
+	INSERT INTO CMEMBER VALUES (#{roomcode}, #{memcode})
+	</insert>
+	<!-- 카페멤버코드로 체팅멤버 추가 -->
+	<insert id="insertCmemberCfmem" parameterType="Integer">
+	INSERT INTO CMEMBER VALUES (#{roomcode}, (SELECT MEMNUM FROM CFMEMBER WHERE CFMEM = #{memcode}))
+	</insert>
+	<insert id="insertCurCmember" parameterType="cmemberDto">
+	INSERT INTO CMEMBER VALUES (#{roomcode}, #{memcode})
+	</insert>
+	<delete id="deleteCmember" parameterType="cmemberDto">
+	DELETE FROM CMEMBER WHERE ROOMCODE = #{roomcode} AND MEMCODE = #{memcode}
+	</delete>
+	<select id="selectMemCode" parameterType="Integer" resultType="Integer">
+	select MEMCODE FROM CMEMBER WHERE ROOMCODE = #{roomcode}
+	</select>
+	<select id="selectInviteList" parameterType="memberInviteDto" resultType="memberInviteDto">
+	SELECT m.NUM, ID, FILEIMG, NVL(ROOMCODE, 0) AS ROOMCODE FROM MEMBER m
+	LEFT OUTER JOIN (SELECT ROOMCODE, MEMCODE FROM CMEMBER WHERE ROOMCODE = #{roomcode}) c
+	ON c.MEMCODE = m.NUM WHERE m.ID LIKE '%${id}%' AND NOT m.NUM = #{num}
+	</select>
+	<select id= "countCmemberRoomcode" parameterType="Integer" resultType="Integer">
+	SELECT COUNT(MEMCODE) as MEMCODE FROM CMEMBER WHERE ROOMCODE = #{roomcode} 
+	</select>
+</mapper>

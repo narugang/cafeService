@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+
+	<tx:annotation-driven
+		transaction-manager="transactionManager" />
+
+	<bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass"
+			value="oracle.jdbc.driver.OracleDriver" />
+		<property name="jdbcUrl"
+			value="jdbc:oracle:thin:@localhost:1521:xe" />
+		<property name="user" value="CafeService" />
+		<property name="password" value="1234" />
+		<property name="maxPoolSize" value="100" />
+		<property name="maxIdleTime" value="600" />
+		<property name="idleConnectionTestPeriod" value="300" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 위의 내용은 DB연결에 대한 설정이다. -->
+
+	<!-- Mybatis연동을 위한 bean객체 / SessionFactory 설정 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:config/mybatis-config.xml" />	<!-- mybatis-config.xml파일이 필요 -->
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:config/sqlmap-member.xml</value> <!-- sqlmap-member.xml파일이 필요 -->
+				<value>classpath:config/sqlmap-cateMake.xml</value>
+				
+				<!-- 도현[S] -->
+				<value>classpath:config/sqlmap-messageMapper.xml</value>
+				<!-- 도현[E] -->
+				
+				<!-- 인우[S] -->
+				<value>classpath:config/sqlmap-board.xml</value>
+				<!-- 인우[E] -->
+
+				<!-- 영표[S] -->
+				<value>classpath:mybatis/sqlmap-clog.xml</value>
+				<value>classpath:mybatis/sqlmap-clogRec.xml</value>
+				<value>classpath:mybatis/sqlmap-cmember.xml</value>
+				<value>classpath:mybatis/sqlmap-croom.xml</value>
+				<value>classpath:mybatis/sqlmap-calendar.xml</value>
+				<value>classpath:mybatis/sqlmap-cfmember.xml</value>
+				<value>classpath:mybatis/sqlmap-cafe.xml</value>
+				<value>classpath:mybatis/sqlmap-bfile.xml</value>
+				<value>classpath:mybatis/sqlmap-category.xml</value>
+				<!-- 영표[E] -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- Mybatis연동을 위한 bean객체 / sqlSessionTemplate 설정 -->
+	<bean id="sqlSessionTemplate"
+		class="org.mybatis.spring.SqlSessionTemplate"
+		destroy-method="clearCache">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+
+	<bean id="memberDao"
+		class="ant.tproject.cafeService.member.dao.MemberDaoImpl">
+		<constructor-arg ref="sqlSessionTemplate" />
+	</bean>
+
+	<bean id="memberServiceImpl"
+		class="ant.tproject.cafeService.member.service.MemberServiceImpl">
+		<property name="memberDao" ref="memberDao" />
+	</bean>
+	
+	<bean id="UploadFileUtils"
+		class="ant.tproject.cafeService.utils.UploadFileUtils">
+	</bean>
+
+	<!-- 여기서 문제가 생길 수 있는데 그 때는 memberVO를 memberDao로 바꿔서 실행해 보자 -->
+	<!-- memberVO로 잡아보려 했으나 아예 잡히지도 않는다. -->
+	<bean id="authService"
+		class="ant.tproject.cafeService.member.authInfo.AuthService">
+		<property name="memberDao" ref="memberDao" />
+	</bean>
+
+	<!-- 카테고리 만들기 빈 설정 -->
+	<bean id="cateMakeDao"
+		class="ant.tproject.cafeService.admin.dao.CateMakeDaoImpl">
+		<constructor-arg ref="sqlSessionTemplate" />
+	</bean>
+
+	<bean id="cateMakeServiceImpl"
+		class="ant.tproject.cafeService.admin.service.CateMakeServiceImpl">
+		<property name="cateMakeDao" ref="cateMakeDao" />
+	</bean>
+
+	<!-- <context:component-scan base-package="utils"/> -->
+
+	<!-- 인우[S] -->
+	<bean id="cafeDto"
+		class="ant.tproject.cafeService.cafe.CafeDto">
+	</bean>
+	<bean id="boardDao"
+		class="ant.tproject.cafeService.board.dao.BoardDaoMybatis">
+		<constructor-arg ref="sqlSessionTemplate"></constructor-arg>
+	</bean>
+
+	<bean id="boardService"
+		class="ant.tproject.cafeService.board.service.BoardServiceImpl">
+		<property name="boardDao" ref="boardDao" />
+	</bean>
+	<!-- 인우[E] -->
+	
+	<!-- 도현[S] -->
+		<bean id="MessageDAO" class="ant.tproject.cafeService.message.dao.MessageDAOImpl">
+		<constructor-arg ref="sqlSessionTemplate" />
+	</bean>
+	
+<!-- 	<bean id="messageService" class="spring.MessageServiceImpl">
+		<property name="messageDao" ref="MessageDAO" />
+	</bean> -->
+	
+	<bean id="messageServiceImpl" class="ant.tproject.cafeService.message.service.MessageServiceImpl">
+		<property name="messageDao" ref="MessageDAO" />
+	</bean>
+	<!-- 도현[E] -->
+
+
+
+
+</beans>
