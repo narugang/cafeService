@@ -29,19 +29,19 @@
 			ON CATE.CODE = PO.CATEGORY 
 		WHERE CAFE = #{seq}
 	</select>
-	<delete id="deletePrepBoardPost">
+	<delete id="deletePrepBoardPost" parameterType="int">
 		DELETE FROM PREPORT WHERE POSTNUM = #{postnum}
 	</delete>
 	<!-- 신고 게시글의 첨부파일의 개수를 확인 -->
-	<select id="countBfile">
+	<select id="countBfile" parameterType="int" resultType="int">
 		SELECT COUNT(*) FROM BFILE WHERE POSTCD = #{postcd}
 	</select>
 	
-	<delete id="deleteBfile">
+	<delete id="deleteBfile" parameterType="int">
 		DELETE FROM BFILE WHERE POSTCD = #{postcd}
 	</delete>
 	
-	<delete id="deletePost">
+	<delete id="deletePost" parameterType="int">
 		DELETE FROM POST WHERE CODE = #{code}
 	</delete>
 </mapper>
